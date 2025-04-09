@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --header-color: #1d182a;
 }
 
 @theme inline {
@@ -16,6 +17,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --header-color: #1d182a;
   }
 }
 
@@ -23,4 +25,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Header styling */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #1d182a;
+}
+
+/* Override any text-gray-900 classes that are commonly used for headers */
+.text-gray-900 {
+  color: #1d182a !important;
 }

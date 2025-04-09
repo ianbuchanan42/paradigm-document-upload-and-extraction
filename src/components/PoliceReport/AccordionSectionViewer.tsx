@@ -262,7 +262,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             name={fieldName}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
             rows={4}
           />
         ) : config.type === 'select' && config.options ? (
@@ -271,7 +271,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             name={fieldName}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           >
             <option value=''>Select {config.label}</option>
             {config.options.map((option) => (
@@ -287,7 +287,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             type={config.type}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           />
         )}
       </div>
@@ -309,7 +309,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         {/* Accordion Header */}
         <div className='bg-gray-50 border-b border-gray-200'>
           <button
-            className='w-full p-4 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset'
+            className='w-full p-4 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-inset'
             onClick={() => toggleSection(section.id)}
           >
             <h3 className='text-lg font-semibold text-gray-900'>
@@ -391,9 +391,9 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       <div className='flex justify-end mb-4'>
         <button
           onClick={() => setShowFullDocument(!showFullDocument)}
-          className={`px-3 py-1 rounded-md text-sm font-medium ${
+          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
             showFullDocument
-              ? 'bg-blue-600 text-white'
+              ? 'bg-[#C98F65] text-white'
               : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
           }`}
         >
@@ -436,7 +436,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
               <div className='mt-6 flex justify-end'>
                 <button
                   type='submit'
-                  className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                  className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
                 >
                   Save All Changes
                 </button>
@@ -457,7 +457,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             <div className='mt-6 flex justify-end'>
               <button
                 type='submit'
-                className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
               >
                 Save All Changes
               </button>

@@ -6,7 +6,7 @@
 
 ## System Overview
 
-This implementation leverages Next.js for the frontend with Tailwind CSS for styling, focusing on responsive design and accessibility through Semantic HTML. Testing is performed using Puppeteer for end-to-end validation. The system integrates with a Django backend and AWS services for document processing and storage.
+This implementation leverages Next.js for the frontend with Tailwind CSS for styling, focusing on responsive design.
 
 ## Workflow Phases
 
@@ -16,20 +16,20 @@ The paralegal uploads a scanned police report from the New Case workflow.
 
 **Technical Implementation:**
 
-- Multi-method upload interface supporting:
+- Multi upload options:
   - Traditional file selection
   - Drag-and-drop functionality
   - Take a photo or scan live document?
 - File validation checking for acceptable formats (PDF, JPEG, PNG, TIFF) and size constraints
-- Secure upload with client-side encryption and HTTPS transmission
-- Authentication validation ensuring only authorized users can upload documents
-- Client/case association established prior to upload through the New Case workflow context
+- Secure upload with client-side encryption using [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API), this would need some serious digging into to implement correctly.
+- Authentication validation ensuring only authorized users can upload documents. Also how often are we re-checking authentication, at what steps?
+- Document-to-case linking implemented either during initial upload (via the New Case workflow) or after extraction when editing document metadata?
 
 **UI Considerations:**
 
-- Simple, intuitive interface with clear visual affordances
-- Accessibility compliance ensuring keyboard navigation
-- Responsive design adapting to desktop, tablet, and mobile devices
+- Simple, intuitive interface with clear visual affordances.
+- Accessibility compliance ensuring keyboard navigation, which can also be leveraged by "super users".
+- Responsive design adapting to desktop, tablet, and mobile devices.
 
 ### 2. Confirmation & Processing Phase
 
@@ -38,15 +38,17 @@ The user receives confirmation that the upload was successful and that extractio
 **Technical Implementation:**
 
 - Real-time progress tracking via WebSocket connection
+  - A persistent WebSocket connection is established between the client (Next.js) and the backend. Once the processing starts, the backend sends periodic messages (e.g., "Section 1 processed", "50% complete") through the socket. This approach is more efficient than HTTP polling since the server pushes updates only when there’s new information.
+  - I have not used WebSockets, but seems like a possible good use case for them.
 - Backend OCR processing with section segmentation
+  - Section Segmentation: Once the text is extracted, algorithms (either rule-based or powered by NLP techniques) analyze document structure (like headings, page breaks, or layout patterns) to segment the text into distinct sections. These sections would represent different parts of the uploaded report.
 - Document metadata extraction (date, case number, involved parties)
+  - This metadata would allow for the generation of tags, key information, summarizing and making processed reports more searchable.
 
 **UI Considerations:**
 
-- Animated progress indicator showing upload and processing status
-- Skeleton components serving as placeholders until sections are processed
-- Informative status messages explaining current processing stage
-- Option for section-by-section loading to enable earlier interaction with available data
+- Animated progress indicator showing upload and processing status and Informative status messages explaining current processing stage This ties into how we might use WebSockets.
+- Skeleton components serving as placeholders until sections are processed. Improving perceived speed.
 
 ### 3. Editing & Review Phase
 
@@ -54,10 +56,12 @@ Once processed, the editable extracted text appears side-by-side with the docume
 
 **Technical Implementation:**
 
+- It would be nice to have spelling errors, issues or concern indicators for each section. Finding a way to highlight both the forma and corresponding issue on the uploaded report. Though this would take some serious processing to map values on the report to the correct form elements.
 - Document segmentation into logical sections (header, narrative, evidence items, etc.)
 - Next.js state management for tracking edited content
 - Debounced auto-save functionality (1-second interval after typing stops)
 - Section-specific validation rules
+- A lot of options could be user settings that allow the user to decide if they prefer speed or intuitive helper tools that take more time to process per upload.
 
 **UI Considerations:**
 
@@ -68,6 +72,7 @@ Once processed, the editable extracted text appears side-by-side with the docume
   - Validation issues or extraction confidence concerns
   - Successfully saved changes
 - Accessible text editing with keyboard shortcuts and contextual formatting options
+- Do we want to have any kind of undo or reset buttons? This add complexity for history management which due to security might not be able to be handled client side.
 
 ### 4. Approval & Storage Phase
 

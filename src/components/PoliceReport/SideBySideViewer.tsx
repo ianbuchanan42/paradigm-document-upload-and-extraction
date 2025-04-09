@@ -46,9 +46,9 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
         <div className='flex space-x-2'>
           <button
             onClick={() => setViewMode('side-by-side')}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 rounded-md transition-colors ${
               viewMode === 'side-by-side'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#C98F65] text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -56,9 +56,9 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
           </button>
           <button
             onClick={() => setViewMode('form-only')}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 rounded-md transition-colors ${
               viewMode === 'form-only'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#C98F65] text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -66,9 +66,9 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
           </button>
           <button
             onClick={() => setViewMode('image-only')}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 rounded-md transition-colors ${
               viewMode === 'image-only'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#C98F65] text-white'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
@@ -120,7 +120,7 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
             </p>
             <div className='mt-4 w-full h-2 bg-gray-200 rounded-full overflow-hidden'>
               <div
-                className='h-full bg-blue-600 animate-pulse'
+                className='h-full bg-[#C98F65] animate-pulse'
                 style={{ width: '100%' }}
               ></div>
             </div>

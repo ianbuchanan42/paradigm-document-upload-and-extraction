@@ -247,7 +247,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
             name={fieldName}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
             rows={4}
           />
         ) : config.type === 'select' && config.options ? (
@@ -256,7 +256,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
             name={fieldName}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           >
             <option value=''>Select {config.label}</option>
             {config.options.map((option) => (
@@ -272,7 +272,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
             type={config.type}
             value={value}
             onChange={handleInputChange}
-            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500'
+            className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           />
         )}
       </div>
@@ -289,16 +289,25 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
 
       <div className='bg-white rounded-lg shadow-md'>
         {/* Tab Navigation */}
-        <div className='flex overflow-x-auto border-b border-gray-200'>
+        <div
+          className='flex overflow-x-auto border-b border-gray-200'
+          role='tablist'
+        >
           {sections.map((section) => (
             <button
               key={section.id}
               onClick={() => setActiveTab(section.id)}
-              className={`px-4 py-2 font-medium text-sm ${
+              className={`px-4 py-2 font-medium text-sm transition-colors ${
                 activeTab === section.id
-                  ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'text-white bg-[#C98F65] rounded-t-md border-b-0 shadow-sm font-bold'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
+              {...(activeTab === section.id
+                ? { 'aria-selected': 'true' }
+                : { 'aria-selected': 'false' })}
+              role='tab'
+              id={`tab-${section.id}`}
+              aria-controls={`panel-${section.id}`}
             >
               {section.title}
             </button>
@@ -310,9 +319,9 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
           <div className='flex justify-end mb-4'>
             <button
               onClick={() => setShowFullDocument(!showFullDocument)}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 showFullDocument
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#C98F65] text-white'
                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
               }`}
             >
@@ -320,33 +329,96 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
             </button>
           </div>
 
-          {showFullDocument ? (
-            // Side by side (full document) layout
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-              {/* Full document view */}
-              <div className='bg-gray-50 rounded-lg p-4'>
-                <div
-                  className='border border-gray-200 rounded overflow-y-auto'
-                  style={{ height: '80vh' }}
-                >
-                  <Image
-                    src={imageSrc}
-                    alt='Full Police Report'
-                    width={800}
-                    height={1100}
-                    className='object-contain w-full'
-                    priority
-                  />
+          <div
+            role='tabpanel'
+            id={`panel-${activeTab}`}
+            aria-labelledby={`tab-${activeTab}`}
+          >
+            {showFullDocument ? (
+              // Side by side (full document) layout
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                {/* Full document view */}
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div
+                    className='border border-gray-200 rounded overflow-y-auto'
+                    style={{ height: '80vh' }}
+                  >
+                    <Image
+                      src={imageSrc}
+                      alt='Full Police Report'
+                      width={800}
+                      height={1100}
+                      className='object-contain w-full'
+                      priority
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Form section */}
+                {/* Form section */}
+                <form onSubmit={handleSubmit}>
+                  <div>
+                    <h2 className='text-xl font-semibold mb-4 text-gray-900'>
+                      {activeSection.title}
+                    </h2>
+                    <div className='space-y-4'>
+                      {activeSection.fields.map((field) =>
+                        renderField(field as keyof PoliceReportData)
+                      )}
+                    </div>
+                  </div>
+
+                  <div className='mt-6 flex justify-end'>
+                    <button
+                      type='submit'
+                      className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              // Original section-specific layout
               <form onSubmit={handleSubmit}>
+                {/* Document section - Now appears above the form fields */}
+                <div className='mb-6'>
+                  <div className='bg-gray-50 rounded-lg p-4'>
+                    <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
+                      <div
+                        className='absolute w-full'
+                        style={{
+                          top: `-${activeImageRegion.top}px`,
+                          left:
+                            activeImageRegion.left !== undefined
+                              ? `-${activeImageRegion.left}px`
+                              : 0,
+                          transform: `scale(${activeImageRegion.zoom || 1})`,
+                          transformOrigin: 'top left',
+                          height: 'auto',
+                        }}
+                      >
+                        <Image
+                          src={imageSrc}
+                          alt='Police Report Section'
+                          width={800}
+                          height={1100}
+                          className='object-contain w-full'
+                          priority
+                        />
+                      </div>
+                    </div>
+                    <p className='text-xs text-gray-700 mt-2 text-center'>
+                      Document section relevant to {activeSection.title}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Form Fields */}
                 <div>
                   <h2 className='text-xl font-semibold mb-4 text-gray-900'>
                     {activeSection.title}
                   </h2>
-                  <div className='space-y-4'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                     {activeSection.fields.map((field) =>
                       renderField(field as keyof PoliceReportData)
                     )}
@@ -356,71 +428,14 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
                 <div className='mt-6 flex justify-end'>
                   <button
                     type='submit'
-                    className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                    className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
                   >
                     Save Changes
                   </button>
                 </div>
               </form>
-            </div>
-          ) : (
-            // Original section-specific layout
-            <form onSubmit={handleSubmit}>
-              {/* Document section - Now appears above the form fields */}
-              <div className='mb-6'>
-                <div className='bg-gray-50 rounded-lg p-4'>
-                  <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
-                    <div
-                      className='absolute w-full'
-                      style={{
-                        top: `-${activeImageRegion.top}px`,
-                        left:
-                          activeImageRegion.left !== undefined
-                            ? `-${activeImageRegion.left}px`
-                            : 0,
-                        transform: `scale(${activeImageRegion.zoom || 1})`,
-                        transformOrigin: 'top left',
-                        height: 'auto',
-                      }}
-                    >
-                      <Image
-                        src={imageSrc}
-                        alt='Police Report Section'
-                        width={800}
-                        height={1100}
-                        className='object-contain w-full'
-                        priority
-                      />
-                    </div>
-                  </div>
-                  <p className='text-xs text-gray-700 mt-2 text-center'>
-                    Document section relevant to {activeSection.title}
-                  </p>
-                </div>
-              </div>
-
-              {/* Form Fields */}
-              <div>
-                <h2 className='text-xl font-semibold mb-4 text-gray-900'>
-                  {activeSection.title}
-                </h2>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                  {activeSection.fields.map((field) =>
-                    renderField(field as keyof PoliceReportData)
-                  )}
-                </div>
-              </div>
-
-              <div className='mt-6 flex justify-end'>
-                <button
-                  type='submit'
-                  className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
