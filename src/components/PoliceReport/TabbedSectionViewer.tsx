@@ -236,7 +236,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
       <div key={fieldName} className='mb-4'>
         <label
           htmlFor={fieldName}
-          className='block text-sm font-medium text-gray-700 mb-1'
+          className='block text-sm font-medium text-gray-800 mb-1'
         >
           {config.label}
         </label>
@@ -282,7 +282,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='mb-6'>
-        <h1 className='text-2xl font-bold text-blue-500'>
+        <h1 className='text-2xl font-bold text-center mb-4 text-gray-900'>
           Police Report Form - Tabbed View
         </h1>
       </div>
@@ -296,8 +296,8 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
               onClick={() => setActiveTab(section.id)}
               className={`px-4 py-2 font-medium text-sm ${
                 activeTab === section.id
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               {section.title}
@@ -313,7 +313,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
               className={`px-3 py-1 rounded-md text-sm font-medium ${
                 showFullDocument
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
               }`}
             >
               {showFullDocument ? 'Show Section View' : 'Show Full Document'}
@@ -343,7 +343,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
               {/* Form section */}
               <form onSubmit={handleSubmit}>
                 <div>
-                  <h2 className='text-xl font-semibold mb-4'>
+                  <h2 className='text-xl font-semibold mb-4 text-gray-900'>
                     {activeSection.title}
                   </h2>
                   <div className='space-y-4'>
@@ -393,7 +393,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
                       />
                     </div>
                   </div>
-                  <p className='text-xs text-gray-500 mt-2 text-center'>
+                  <p className='text-xs text-gray-700 mt-2 text-center'>
                     Document section relevant to {activeSection.title}
                   </p>
                 </div>
@@ -401,7 +401,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
 
               {/* Form Fields */}
               <div>
-                <h2 className='text-xl font-semibold mb-4'>
+                <h2 className='text-xl font-semibold mb-4 text-gray-900'>
                   {activeSection.title}
                 </h2>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>

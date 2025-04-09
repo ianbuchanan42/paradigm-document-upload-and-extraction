@@ -251,7 +251,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       <div key={fieldName} className='mb-4'>
         <label
           htmlFor={fieldName}
-          className='block text-sm font-medium text-gray-700 mb-1'
+          className='block text-sm font-medium text-gray-800 mb-1'
         >
           {config.label}
         </label>
@@ -312,11 +312,11 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             className='w-full p-4 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset'
             onClick={() => toggleSection(section.id)}
           >
-            <h3 className='text-lg font-medium text-gray-900'>
+            <h3 className='text-lg font-semibold text-gray-900'>
               {section.title}
             </h3>
             <svg
-              className={`h-5 w-5 transform transition-transform ${
+              className={`h-5 w-5 transform transition-transform text-gray-900 ${
                 isExpanded ? 'rotate-180' : ''
               }`}
               xmlns='http://www.w3.org/2000/svg'
@@ -362,7 +362,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
                     />
                   </div>
                 </div>
-                <p className='text-xs text-gray-500 mt-2 text-center'>
+                <p className='text-xs text-gray-700 mt-2 text-center'>
                   Document section relevant to {section.title}
                 </p>
               </div>
@@ -383,7 +383,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='mb-6'>
-        <h1 className='text-2xl font-bold text-blue-500'>
+        <h1 className='text-2xl font-bold text-center mb-4 text-gray-900'>
           Police Report Form - Accordion View
         </h1>
       </div>
@@ -394,7 +394,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
           className={`px-3 py-1 rounded-md text-sm font-medium ${
             showFullDocument
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
           }`}
         >
           {showFullDocument ? 'Show Section View' : 'Show Full Document'}

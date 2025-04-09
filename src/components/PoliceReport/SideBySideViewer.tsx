@@ -39,7 +39,7 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='mb-6 flex justify-between items-center'>
-        <h1 className='text-2xl font-bold text-blue-500'>
+        <h1 className='text-2xl font-bold text-gray-900'>
           Police Report Review
         </h1>
 
@@ -49,7 +49,7 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
             className={`px-3 py-1 rounded-md ${
               viewMode === 'side-by-side'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
             Side by Side
@@ -59,7 +59,7 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
             className={`px-3 py-1 rounded-md ${
               viewMode === 'form-only'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
             Form Only
@@ -69,7 +69,7 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
             className={`px-3 py-1 rounded-md ${
               viewMode === 'image-only'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
             }`}
           >
             Image Only
@@ -115,7 +115,9 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
       {isSaving && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
           <div className='bg-white p-6 rounded-lg shadow-xl'>
-            <p className='text-lg font-semibold'>Saving your changes...</p>
+            <p className='text-lg font-semibold text-gray-900'>
+              Saving your changes...
+            </p>
             <div className='mt-4 w-full h-2 bg-gray-200 rounded-full overflow-hidden'>
               <div
                 className='h-full bg-blue-600 animate-pulse'

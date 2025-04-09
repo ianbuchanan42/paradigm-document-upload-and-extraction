@@ -19,7 +19,7 @@ The paralegal uploads a scanned police report from the New Case workflow.
 - Multi-method upload interface supporting:
   - Traditional file selection
   - Drag-and-drop functionality
-  - Direct scanning integration (where available)
+  - Take a photo or scan live document?
 - File validation checking for acceptable formats (PDF, JPEG, PNG, TIFF) and size constraints
 - Secure upload with client-side encryption and HTTPS transmission
 - Authentication validation ensuring only authorized users can upload documents

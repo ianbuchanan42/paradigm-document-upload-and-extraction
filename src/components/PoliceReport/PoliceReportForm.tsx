@@ -115,7 +115,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
       <div className='mb-4'>
         <label
           htmlFor={name}
-          className='block text-sm font-medium text-gray-700 mb-1'
+          className='block text-sm font-medium text-gray-800 mb-1'
         >
           {label}
         </label>
@@ -174,7 +174,9 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
     <form onSubmit={handleSubmit} className='space-y-6' noValidate>
       {/* Internal Affairs Section */}
       <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
-        <h2 className='text-lg font-semibold mb-4'>Internal Affairs Section</h2>
+        <h2 className='text-lg font-semibold mb-4 text-gray-900'>
+          Internal Affairs Section
+        </h2>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {renderField('Department No.', 'departmentNo')}
           {renderField('Internal Affairs Case No.', 'internalAffairsCaseNo')}
@@ -183,7 +185,9 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
 
       {/* Person Making Report Section */}
       <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
-        <h2 className='text-lg font-semibold mb-4'>Person Making Report</h2>
+        <h2 className='text-lg font-semibold mb-4 text-gray-900'>
+          Person Making Report
+        </h2>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {renderField('Name', 'name')}
           {renderField('Alias', 'alias')}
@@ -261,7 +265,9 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
 
       {/* Incident Details Section */}
       <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
-        <h2 className='text-lg font-semibold mb-4'>Incident Details</h2>
+        <h2 className='text-lg font-semibold mb-4 text-gray-900'>
+          Incident Details
+        </h2>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {renderField('Nature of Complaint', 'natureOfComplaint')}
           {renderField('Complaint Against (Name[s])', 'complaintAgainst')}
@@ -294,18 +300,12 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
         </div>
       </div>
 
-      <div className='flex justify-end space-x-2'>
-        <button
-          type='button'
-          className='px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500'
-        >
-          Cancel
-        </button>
+      <div className='mt-6 flex justify-end'>
         <button
           type='submit'
-          className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+          className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
         >
-          Submit
+          Submit Report
         </button>
       </div>
     </form>
