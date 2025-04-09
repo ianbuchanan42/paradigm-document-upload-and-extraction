@@ -4,11 +4,28 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { PoliceReportData, emptyPoliceReport } from '@/types/PoliceReport';
 
+// Define image section configuration type
+interface ImageRegion {
+  top: number; // The top position to display (in pixels)
+  left?: number; // Optional left position (for horizontal scrolling)
+  width?: number; // Optional width to show
+  height: number; // The height of the section to display (in pixels)
+  zoom?: number; // Optional zoom level
+}
+
+interface Section {
+  id: string;
+  title: string;
+  fields: string[];
+  imageRegion: ImageRegion;
+}
+
 interface AccordionSectionViewerProps {
   imageSrc: string;
   initialData?: PoliceReportData;
   onDataChange: (data: PoliceReportData) => void;
   onSubmit: (data: PoliceReportData) => void;
+  defaultImageRegion?: ImageRegion; // Default image region if section doesn't define one
 }
 
 const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
@@ -16,14 +33,13 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
   initialData = emptyPoliceReport,
   onDataChange,
   onSubmit,
+  defaultImageRegion = { top: 0, height: 800, zoom: 1, left: 0, width: 800 }, // Default image region with all properties
 }) => {
   const [reportData, setReportData] = useState<PoliceReportData>(initialData);
   const [expandedSections, setExpandedSections] = useState<string[]>([
     'internal-affairs',
   ]);
-  const [viewMode, setViewMode] = useState<
-    'side-by-side' | 'form-only' | 'image-only'
-  >('side-by-side');
+  const [showFullDocument, setShowFullDocument] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -42,11 +58,12 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
   };
 
   // Define sections and their corresponding fields - same as in the tabbed view
-  const sections = [
+  const sections: Section[] = [
     {
       id: 'internal-affairs',
       title: 'Internal Affairs',
       fields: ['departmentNo', 'internalAffairsCaseNo'],
+      imageRegion: { top: 150, height: 400, zoom: 1 },
     },
     {
       id: 'personal-info',
@@ -61,11 +78,13 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         'phone',
         'employerSchool',
       ],
+      imageRegion: { top: 400, height: 600, zoom: 0.8 },
     },
     {
       id: 'demographics',
       title: 'Demographics',
       fields: ['race', 'gender', 'dob', 'age', 'sex', 'phoneSecondary'],
+      imageRegion: { top: 700, height: 200, zoom: 1 },
     },
     {
       id: 'incident-basic',
@@ -77,6 +96,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         'incidentDate',
         'incidentTime',
       ],
+      imageRegion: { top: 1000, height: 500, zoom: 1 },
     },
     {
       id: 'incident-details',
@@ -89,8 +109,18 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         'beat',
         'incidentDescription',
       ],
+      imageRegion: { top: 900, height: 600, zoom: 0.8 },
     },
   ];
+
+  // Get the active section to determine which image region to show
+  const activeSection =
+    expandedSections.length > 0
+      ? sections.find((section) => section.id === expandedSections[0])
+      : sections[0];
+
+  // Get the image region for the active section
+  const activeImageRegion = activeSection?.imageRegion || defaultImageRegion;
 
   // Toggle section expansion
   const toggleSection = (sectionId: string) => {
@@ -101,14 +131,6 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         return [...prev, sectionId];
       }
     });
-  };
-
-  // Keyboard handling for accessibility
-  const handleKeyDown = (e: React.KeyboardEvent, sectionId: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleSection(sectionId);
-    }
   };
 
   // Helper to render appropriate input field based on field name - same logic as tabbed view
@@ -272,34 +294,34 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
     );
   };
 
-  // Helper to render accordion sections
-  const renderAccordionSection = (
-    section: (typeof sections)[0],
-    index: number
-  ) => {
+  // Render an accordion section
+  const renderAccordionSection = (section: Section, index: number) => {
     const isExpanded = expandedSections.includes(section.id);
 
+    // Get the image region for this section
+    const sectionImageRegion = section.imageRegion || defaultImageRegion;
+
     return (
-      <div key={section.id} className='accordion-section'>
-        <h3>
+      <div
+        key={section.id}
+        className='mb-4 border border-gray-200 rounded-lg overflow-hidden shadow-sm'
+      >
+        {/* Accordion Header */}
+        <div className='bg-gray-50 border-b border-gray-200'>
           <button
-            type='button'
-            className={`w-full flex justify-between items-center p-4 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50'
-            }`}
+            className='w-full p-4 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset'
             onClick={() => toggleSection(section.id)}
-            onKeyDown={(e) => handleKeyDown(e, section.id)}
-            aria-controls={`section-${section.id}-content`}
           >
-            <span className='font-medium text-gray-900'>{section.title}</span>
+            <h3 className='text-lg font-medium text-gray-900'>
+              {section.title}
+            </h3>
             <svg
-              className={`w-5 h-5 transform transition-transform ${
+              className={`h-5 w-5 transform transition-transform ${
                 isExpanded ? 'rotate-180' : ''
               }`}
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 20 20'
               fill='currentColor'
-              aria-hidden='true'
             >
               <path
                 fillRule='evenodd'
@@ -308,10 +330,45 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
               />
             </svg>
           </button>
-        </h3>
+        </div>
 
+        {/* Accordion Content */}
         {isExpanded && (
-          <div id={`section-${section.id}-content`} className='p-4 bg-white'>
+          <div className='p-4'>
+            {/* Document section for this accordion item */}
+            <div className='mb-6'>
+              <div className='bg-gray-50 rounded-lg p-4'>
+                <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
+                  <div
+                    className='absolute w-full'
+                    style={{
+                      top: `-${sectionImageRegion.top}px`,
+                      left:
+                        sectionImageRegion.left !== undefined
+                          ? `-${sectionImageRegion.left}px`
+                          : 0,
+                      transform: `scale(${sectionImageRegion.zoom || 1})`,
+                      transformOrigin: 'top left',
+                      height: 'auto',
+                    }}
+                  >
+                    <Image
+                      src={imageSrc}
+                      alt={`Police Report Section for ${section.title}`}
+                      width={800}
+                      height={1100}
+                      className='object-contain w-full'
+                      priority
+                    />
+                  </div>
+                </div>
+                <p className='text-xs text-gray-500 mt-2 text-center'>
+                  Document section relevant to {section.title}
+                </p>
+              </div>
+            </div>
+
+            {/* Form Fields */}
             <div className='space-y-4'>
               {section.fields.map((field) =>
                 renderField(field as keyof PoliceReportData)
@@ -325,96 +382,89 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <div className='mb-6 flex justify-between items-center'>
-        <h1 className='text-2xl font-bold'>Police Report Sections</h1>
-
-        <div className='flex space-x-2'>
-          <button
-            onClick={() => setViewMode('side-by-side')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'side-by-side'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Side by Side
-          </button>
-          <button
-            onClick={() => setViewMode('form-only')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'form-only'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Form Only
-          </button>
-          <button
-            onClick={() => setViewMode('image-only')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'image-only'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Image Only
-          </button>
-        </div>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-bold text-blue-500'>
+          Police Report Form - Accordion View
+        </h1>
       </div>
 
-      <div
-        className={`grid ${
-          viewMode === 'side-by-side'
-            ? 'grid-cols-1 lg:grid-cols-2 gap-8'
-            : 'grid-cols-1'
-        }`}
-      >
-        {/* Document Image (if in side-by-side or image-only mode) */}
-        {(viewMode === 'side-by-side' || viewMode === 'image-only') && (
-          <div className='bg-white p-4 rounded-lg shadow-md'>
-            <div className='relative h-[800px] w-full border border-gray-200 rounded overflow-auto'>
+      <div className='flex justify-end mb-4'>
+        <button
+          onClick={() => setShowFullDocument(!showFullDocument)}
+          className={`px-3 py-1 rounded-md text-sm font-medium ${
+            showFullDocument
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          {showFullDocument ? 'Show Section View' : 'Show Full Document'}
+        </button>
+      </div>
+
+      {showFullDocument ? (
+        // Side by side (full document) layout
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {/* Full document view */}
+          <div className='bg-gray-50 rounded-lg p-4'>
+            <div
+              className='border border-gray-200 rounded overflow-y-auto'
+              style={{ height: '80vh' }}
+            >
               <Image
                 src={imageSrc}
-                alt='Police Report'
+                alt='Full Police Report'
                 width={800}
                 height={1100}
-                className='object-contain'
+                className='object-contain w-full'
+                priority
               />
             </div>
           </div>
-        )}
 
-        {/* Form with Accordion Sections (if in side-by-side or form-only mode) */}
-        {(viewMode === 'side-by-side' || viewMode === 'form-only') && (
-          <div className='bg-white p-4 rounded-lg shadow-md'>
-            <form
-              onSubmit={handleSubmit}
-              className='border border-gray-200 rounded overflow-auto max-h-[800px]'
+          {/* Form section */}
+          <form onSubmit={handleSubmit}>
+            <div
+              className='bg-white rounded-lg shadow-md p-6 overflow-y-auto'
+              style={{ maxHeight: '80vh' }}
             >
-              <div className='divide-y divide-gray-200'>
-                {sections.map((section, index) =>
-                  renderAccordionSection(section, index)
-                )}
-              </div>
+              {/* Accordion sections */}
+              {sections.map((section, index) =>
+                renderAccordionSection(section, index)
+              )}
 
-              <div className='p-4 bg-gray-50 flex justify-end space-x-2'>
-                <button
-                  type='button'
-                  className='px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                >
-                  Cancel
-                </button>
+              {/* Submit button */}
+              <div className='mt-6 flex justify-end'>
                 <button
                   type='submit'
-                  className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                 >
-                  Submit
+                  Save All Changes
                 </button>
               </div>
-            </form>
+            </div>
+          </form>
+        </div>
+      ) : (
+        // Modified accordion layout with document viewers inside each section
+        <form onSubmit={handleSubmit}>
+          <div className='bg-white rounded-lg shadow-md p-6'>
+            {/* Accordion sections */}
+            {sections.map((section, index) =>
+              renderAccordionSection(section, index)
+            )}
+
+            {/* Submit button */}
+            <div className='mt-6 flex justify-end'>
+              <button
+                type='submit'
+                className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+              >
+                Save All Changes
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </form>
+      )}
     </div>
   );
 };

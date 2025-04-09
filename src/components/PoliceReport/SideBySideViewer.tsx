@@ -39,7 +39,9 @@ const SideBySideViewer: React.FC<SideBySideViewerProps> = ({
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='mb-6 flex justify-between items-center'>
-        <h1 className='text-2xl font-bold'>Police Report Review</h1>
+        <h1 className='text-2xl font-bold text-blue-500'>
+          Police Report Review
+        </h1>
 
         <div className='flex space-x-2'>
           <button

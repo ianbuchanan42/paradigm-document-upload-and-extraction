@@ -4,11 +4,28 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { PoliceReportData, emptyPoliceReport } from '@/types/PoliceReport';
 
+// Define image section configuration type
+interface ImageRegion {
+  top: number; // The top position to display (in pixels)
+  left?: number; // Optional left position (for horizontal scrolling)
+  width?: number; // Optional width to show
+  height: number; // The height of the section to display (in pixels)
+  zoom?: number; // Optional zoom level
+}
+
+interface Section {
+  id: string;
+  title: string;
+  fields: string[];
+  imageRegion: ImageRegion;
+}
+
 interface TabbedSectionViewerProps {
   imageSrc: string;
   initialData?: PoliceReportData;
   onDataChange: (data: PoliceReportData) => void;
   onSubmit: (data: PoliceReportData) => void;
+  defaultImageRegion?: ImageRegion; // Default image region if section doesn't define one
 }
 
 const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
@@ -16,12 +33,11 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
   initialData = emptyPoliceReport,
   onDataChange,
   onSubmit,
+  defaultImageRegion = { top: 0, height: 800, zoom: 1, left: 0, width: 800 }, // Default image region with all properties
 }) => {
   const [activeTab, setActiveTab] = useState('internal-affairs');
   const [reportData, setReportData] = useState<PoliceReportData>(initialData);
-  const [viewMode, setViewMode] = useState<
-    'side-by-side' | 'form-only' | 'image-only'
-  >('side-by-side');
+  const [showFullDocument, setShowFullDocument] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -40,11 +56,12 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
   };
 
   // Define sections and their corresponding fields
-  const sections = [
+  const sections: Section[] = [
     {
       id: 'internal-affairs',
       title: 'Internal Affairs',
       fields: ['departmentNo', 'internalAffairsCaseNo'],
+      imageRegion: { top: 150, height: 400, zoom: 1 },
     },
     {
       id: 'personal-info',
@@ -59,11 +76,13 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
         'phone',
         'employerSchool',
       ],
+      imageRegion: { top: 400, height: 600, zoom: 0.8 },
     },
     {
       id: 'demographics',
       title: 'Demographics',
       fields: ['race', 'gender', 'dob', 'age', 'sex', 'phoneSecondary'],
+      imageRegion: { top: 700, height: 200, zoom: 1 },
     },
     {
       id: 'incident-basic',
@@ -75,6 +94,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
         'incidentDate',
         'incidentTime',
       ],
+      imageRegion: { top: 1000, height: 500, zoom: 1 },
     },
     {
       id: 'incident-details',
@@ -87,12 +107,16 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
         'beat',
         'incidentDescription',
       ],
+      imageRegion: { top: 900, height: 600, zoom: 0.8 },
     },
   ];
 
   // Get active section fields
   const activeSection =
     sections.find((section) => section.id === activeTab) || sections[0];
+
+  // Get the image region for the active section, or use default if not defined
+  const activeImageRegion = activeSection.imageRegion || defaultImageRegion;
 
   // Helper to render appropriate input field based on field name
   const renderField = (fieldName: keyof PoliceReportData) => {
@@ -257,146 +281,147 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <div className='mb-6 flex justify-between items-center'>
-        <h1 className='text-2xl font-bold'>Police Report Sections</h1>
-
-        <div className='flex space-x-2'>
-          <button
-            onClick={() => setViewMode('side-by-side')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'side-by-side'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Side by Side
-          </button>
-          <button
-            onClick={() => setViewMode('form-only')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'form-only'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Form Only
-          </button>
-          <button
-            onClick={() => setViewMode('image-only')}
-            className={`px-3 py-1 rounded-md ${
-              viewMode === 'image-only'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            Image Only
-          </button>
-        </div>
+      <div className='mb-6'>
+        <h1 className='text-2xl font-bold text-blue-500'>
+          Police Report Form - Tabbed View
+        </h1>
       </div>
 
-      {/* Tabs navigation */}
-      <div className='mb-6 border-b border-gray-200'>
-        <nav className='flex -mb-px space-x-1' aria-label='Sections'>
+      <div className='bg-white rounded-lg shadow-md'>
+        {/* Tab Navigation */}
+        <div className='flex overflow-x-auto border-b border-gray-200'>
           {sections.map((section) => (
             <button
               key={section.id}
-              className={`py-3 px-4 text-center border-b-2 font-medium text-sm ${
-                activeTab === section.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
               onClick={() => setActiveTab(section.id)}
+              className={`px-4 py-2 font-medium text-sm ${
+                activeTab === section.id
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               {section.title}
             </button>
           ))}
-        </nav>
-      </div>
+        </div>
 
-      {/* Content area */}
-      <div
-        className={`grid ${
-          viewMode === 'side-by-side'
-            ? 'grid-cols-1 lg:grid-cols-2 gap-8'
-            : 'grid-cols-1'
-        }`}
-      >
-        {/* Document Image (if in side-by-side or image-only mode) */}
-        {(viewMode === 'side-by-side' || viewMode === 'image-only') && (
-          <div className='bg-white p-4 rounded-lg shadow-md'>
-            <div className='relative h-[600px] w-full border border-gray-200 rounded overflow-auto'>
-              <Image
-                src={imageSrc}
-                alt='Police Report'
-                width={800}
-                height={1100}
-                className='object-contain'
-              />
-            </div>
+        {/* Tab Content */}
+        <div className='p-4'>
+          <div className='flex justify-end mb-4'>
+            <button
+              onClick={() => setShowFullDocument(!showFullDocument)}
+              className={`px-3 py-1 rounded-md text-sm font-medium ${
+                showFullDocument
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {showFullDocument ? 'Show Section View' : 'Show Full Document'}
+            </button>
           </div>
-        )}
 
-        {/* Form Section (if in side-by-side or form-only mode) */}
-        {(viewMode === 'side-by-side' || viewMode === 'form-only') && (
-          <div className='bg-white p-4 rounded-lg shadow-md'>
-            <div className='border border-gray-200 rounded p-4 overflow-auto max-h-[600px]'>
-              <h2 className='text-lg font-semibold mb-4'>
-                {activeSection.title}
-              </h2>
+          {showFullDocument ? (
+            // Side by side (full document) layout
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Full document view */}
+              <div className='bg-gray-50 rounded-lg p-4'>
+                <div
+                  className='border border-gray-200 rounded overflow-y-auto'
+                  style={{ height: '80vh' }}
+                >
+                  <Image
+                    src={imageSrc}
+                    alt='Full Police Report'
+                    width={800}
+                    height={1100}
+                    className='object-contain w-full'
+                    priority
+                  />
+                </div>
+              </div>
 
-              <form onSubmit={handleSubmit} className='space-y-4'>
-                {activeSection.fields.map((field) =>
-                  renderField(field as keyof PoliceReportData)
-                )}
+              {/* Form section */}
+              <form onSubmit={handleSubmit}>
+                <div>
+                  <h2 className='text-xl font-semibold mb-4'>
+                    {activeSection.title}
+                  </h2>
+                  <div className='space-y-4'>
+                    {activeSection.fields.map((field) =>
+                      renderField(field as keyof PoliceReportData)
+                    )}
+                  </div>
+                </div>
 
-                <div className='pt-4 flex justify-end space-x-2'>
+                <div className='mt-6 flex justify-end'>
                   <button
-                    type='button'
-                    className='px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    onClick={() => {
-                      // Find the current section index
-                      const currentIndex = sections.findIndex(
-                        (s) => s.id === activeTab
-                      );
-                      // Go to previous section if possible
-                      if (currentIndex > 0) {
-                        setActiveTab(sections[currentIndex - 1].id);
-                      }
-                    }}
+                    type='submit'
+                    className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                   >
-                    Previous
+                    Save Changes
                   </button>
-
-                  {activeTab === sections[sections.length - 1].id ? (
-                    <button
-                      type='submit'
-                      className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    >
-                      Submit
-                    </button>
-                  ) : (
-                    <button
-                      type='button'
-                      className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
-                      onClick={() => {
-                        // Find the current section index
-                        const currentIndex = sections.findIndex(
-                          (s) => s.id === activeTab
-                        );
-                        // Go to next section if possible
-                        if (currentIndex < sections.length - 1) {
-                          setActiveTab(sections[currentIndex + 1].id);
-                        }
-                      }}
-                    >
-                      Next
-                    </button>
-                  )}
                 </div>
               </form>
             </div>
-          </div>
-        )}
+          ) : (
+            // Original section-specific layout
+            <form onSubmit={handleSubmit}>
+              {/* Document section - Now appears above the form fields */}
+              <div className='mb-6'>
+                <div className='bg-gray-50 rounded-lg p-4'>
+                  <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
+                    <div
+                      className='absolute w-full'
+                      style={{
+                        top: `-${activeImageRegion.top}px`,
+                        left:
+                          activeImageRegion.left !== undefined
+                            ? `-${activeImageRegion.left}px`
+                            : 0,
+                        transform: `scale(${activeImageRegion.zoom || 1})`,
+                        transformOrigin: 'top left',
+                        height: 'auto',
+                      }}
+                    >
+                      <Image
+                        src={imageSrc}
+                        alt='Police Report Section'
+                        width={800}
+                        height={1100}
+                        className='object-contain w-full'
+                        priority
+                      />
+                    </div>
+                  </div>
+                  <p className='text-xs text-gray-500 mt-2 text-center'>
+                    Document section relevant to {activeSection.title}
+                  </p>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+              <div>
+                <h2 className='text-xl font-semibold mb-4'>
+                  {activeSection.title}
+                </h2>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  {activeSection.fields.map((field) =>
+                    renderField(field as keyof PoliceReportData)
+                  )}
+                </div>
+              </div>
+
+              <div className='mt-6 flex justify-end'>
+                <button
+                  type='submit'
+                  className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

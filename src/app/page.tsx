@@ -10,7 +10,7 @@ import { PoliceReportData, emptyPoliceReport } from '@/types/PoliceReport';
 export default function Home() {
   const [currentView, setCurrentView] = useState<
     'side-by-side' | 'tabbed' | 'accordion' | 'simple'
-  >('simple');
+  >('side-by-side');
   const [reportData, setReportData] =
     useState<PoliceReportData>(emptyPoliceReport);
   const [showLinterNote, setShowLinterNote] = useState(true);
@@ -22,14 +22,14 @@ export default function Home() {
   const handleSubmit = (data: PoliceReportData) => {
     console.log('Form submitted:', data);
     // In a real application, you would send this data to your backend
-    alert('Form submitted successfully!');
+    // No notification or alert
   };
 
   return (
     <main className='min-h-screen bg-gray-100'>
       <div className='container mx-auto px-4 py-8'>
         <header className='mb-8'>
-          <h1 className='text-3xl font-bold text-center mb-4'>
+          <h1 className='text-3xl font-bold text-center mb-4 text-blue-600'>
             Police Report Viewer
           </h1>
           <div className='flex justify-center flex-wrap space-x-2'>
@@ -65,15 +65,6 @@ export default function Home() {
             </button>
           </div>
         </header>
-
-        {currentView === 'simple' && (
-          <SimpleSideBySide
-            imageSrc='/assets/Dummy Police Report.png'
-            initialData={reportData}
-            onDataChange={handleDataChange}
-            onSubmit={handleSubmit}
-          />
-        )}
 
         {currentView === 'side-by-side' && (
           <SideBySideViewer
