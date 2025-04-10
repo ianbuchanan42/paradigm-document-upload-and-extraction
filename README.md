@@ -12,6 +12,8 @@ Demo site is deployed on [Render.com](https://paradigm-document-upload-and-extra
 
 Repo found at [Github](https://github.com/ianbuchanan42/paradigm-document-upload-and-extraction)
 
+Or just clone repo and npm install -> npm run dev
+
 ## My Intentions
 
 With this take home my main focus was front-end and the user experience, exploring how forms could be represented to best improve work flow and cognitive load.
@@ -47,13 +49,13 @@ The paralegal uploads a scanned police report from the New Case workflow.
   - Drag-and-drop functionality
   - Take a photo or scan live document?
 - File validation checking for acceptable formats (PDF, JPEG, PNG, TIFF) and size constraints
-- Secure upload with client-side encryption using [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API), this would need some serious digging into to implement correctly.
+- Secure upload with client-side encryption using [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API), this would need some serious digging into to implement correctly and outside security checking. If done wrong it truly offers no improvement to security.
 - Authentication validation ensuring only authorized users can upload documents. Also how often are we re-checking authentication, at what steps?
 - Document-to-case linking implemented either during initial upload (via the New Case workflow) or after extraction when editing document metadata?
 
 **UI Considerations:**
 
-- Simple, intuitive interface with clear visual affordances.
+- Simple and intuitive interface.
 - Accessibility compliance ensuring keyboard navigation, which can also be leveraged by "super users".
 - Responsive design adapting to desktop, tablet, and mobile devices.
 
@@ -109,14 +111,14 @@ Upon approval, the backend stores the cleaned text and an embedding of the docum
 
 - Secure API call to confirm document approval
 - Backend generation of text embeddings using NLP
-- Integration with database for structured storage
+- Integration with database for storage
 
 **UI Considerations:**
 
 - Loading indicators during the approval process
 - Success notification confirming storage completion
 - Error handling with clear user guidance for failure scenarios
-- Retry mechanisms for transient failures
+- Retry mechanisms for failures
 
 ### 5. Summary & Tagging Phase
 
@@ -125,7 +127,7 @@ The UI presents a summary of the document, relevant tags, and extracted entities
 **Technical Implementation:**
 
 - AI-generated document summary
-- NLP-based processing / extraction
+- NLP-based processing / extraction / tag creation
 - Tag suggestion from predefined list based on document content
 - Search optimization through proper indexing of tags
 
@@ -134,7 +136,7 @@ The UI presents a summary of the document, relevant tags, and extracted entities
 - Clean, scannable presentation of summary and metadata
 - Interactive tag management interface
 - Entity highlighting within document context
-- Location visualization option (map integration where appropriate)
+- Location visualization option (map integration where appropriate), might be over kill?
 - Grouping and favorite functionality for document organization
 
 ### 6. Item-Level Approval
@@ -143,7 +145,6 @@ The user can approve or reject each item individually.
 
 **Technical Implementation:**
 
-- Granular approval state tracking per item
 - Feedback collection for rejected items
 - Re-generation API calls for rejected summaries
 
@@ -172,7 +173,7 @@ After clicking "Finish," the process concludes.
 - HTTPS encryption for all data transmission
 - Authentication and authorization checks at all endpoints
 - Secure document storage with encryption at rest
-- Audit logging of all document interactions
+- Audit logging of all document interactions, not sure how best to do this?
 
 ## Performance Optimization
 
@@ -186,13 +187,13 @@ After clicking "Finish," the process concludes.
 - Semantic HTML structure
 - ARIA attributes for interactive elements
 - Keyboard navigation support
-- Color contrast compliance
+- Color contrast compliance, current demo is not great on this!
 - Focus management during multi-step workflows
 
 ## Future Enhancements
 
 - Batch document processing
 - Advanced search capabilities
-- Integration with case management systems
+- Integration with case management systems, maybe?
 - Mobile application support
 - Offline mode capabilities
