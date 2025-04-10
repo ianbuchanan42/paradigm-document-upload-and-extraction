@@ -24,7 +24,7 @@ interface TabbedSectionViewerProps {
   imageSrc: string;
   initialData?: PoliceReportData;
   onDataChange: (data: PoliceReportData) => void;
-  onSubmit: (data: PoliceReportData) => void;
+  onSubmit: (data: PoliceReportData, showConfirmation?: boolean) => void;
   defaultImageRegion?: ImageRegion; // Default image region if section doesn't define one
 }
 
@@ -50,9 +50,12 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
     onDataChange(newData);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (
+    e: React.FormEvent,
+    showConfirmation: boolean = false
+  ) => {
     e.preventDefault();
-    onSubmit(reportData);
+    onSubmit(reportData, showConfirmation);
   };
 
   // Define sections and their corresponding fields
@@ -355,7 +358,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
                 </div>
 
                 {/* Form section */}
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={(e) => handleSubmit(e, false)}>
                   <div>
                     <h2 className='text-xl font-semibold mb-4 text-gray-900'>
                       {activeSection.title}
@@ -379,7 +382,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
               </div>
             ) : (
               // Original section-specific layout
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={(e) => handleSubmit(e, false)}>
                 {/* Document section - Now appears above the form fields */}
                 <div className='mb-6'>
                   <div className='bg-gray-50 rounded-lg p-4'>

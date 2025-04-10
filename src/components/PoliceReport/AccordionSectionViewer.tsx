@@ -37,7 +37,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
 }) => {
   const [reportData, setReportData] = useState<PoliceReportData>(initialData);
   const [expandedSections, setExpandedSections] = useState<string[]>([
-    'internal-affairs',
+    'accordion_internal-affairs',
   ]);
   const [showFullDocument, setShowFullDocument] = useState(false);
 
@@ -46,27 +46,39 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
+    // Prevent any default behavior that might bubble up
+    e.preventDefault();
+    e.stopPropagation();
+
     const { name, value } = e.target;
     const newData = { ...reportData, [name]: value };
     setReportData(newData);
     onDataChange(newData);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Modified handleSubmit to prevent navigation to summary view
+  const handleSubmit = (e: React.MouseEvent) => {
+    // Prevent any default behavior
     e.preventDefault();
-    onSubmit(reportData);
+    e.stopPropagation();
+
+    // Just update the data locally, but don't trigger navigation to summary
+    onDataChange(reportData);
+
+    // Show a message that changes were saved (could add a toast notification in a real app)
+    alert('Changes saved successfully!');
   };
 
   // Define sections and their corresponding fields - same as in the tabbed view
   const sections: Section[] = [
     {
-      id: 'internal-affairs',
+      id: 'accordion_internal-affairs',
       title: 'Internal Affairs',
       fields: ['departmentNo', 'internalAffairsCaseNo'],
       imageRegion: { top: 150, height: 400, zoom: 1 },
     },
     {
-      id: 'personal-info',
+      id: 'accordion_personal-info',
       title: 'Personal Information',
       fields: [
         'name',
@@ -81,13 +93,13 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       imageRegion: { top: 400, height: 600, zoom: 0.8 },
     },
     {
-      id: 'demographics',
+      id: 'accordion_demographics',
       title: 'Demographics',
       fields: ['race', 'gender', 'dob', 'age', 'sex', 'phoneSecondary'],
       imageRegion: { top: 700, height: 200, zoom: 1 },
     },
     {
-      id: 'incident-basic',
+      id: 'accordion_incident-basic',
       title: 'Incident Basic Info',
       fields: [
         'natureOfComplaint',
@@ -99,7 +111,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       imageRegion: { top: 1000, height: 500, zoom: 1 },
     },
     {
-      id: 'incident-details',
+      id: 'accordion_incident-details',
       title: 'Incident Details',
       fields: [
         'reportedDateTime',
@@ -264,6 +276,12 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             onChange={handleInputChange}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
             rows={4}
+            onKeyDown={(e) => {
+              // Prevent Enter key from submitting a form
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+              }
+            }}
           />
         ) : config.type === 'select' && config.options ? (
           <select
@@ -272,6 +290,12 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             value={value}
             onChange={handleInputChange}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
+            onKeyDown={(e) => {
+              // Prevent Enter key from submitting a form
+              if (e.key === 'Enter') {
+                e.preventDefault();
+              }
+            }}
           >
             <option value=''>Select {config.label}</option>
             {config.options.map((option) => (
@@ -288,6 +312,12 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             value={value}
             onChange={handleInputChange}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
+            onKeyDown={(e) => {
+              // Prevent Enter key from submitting a form
+              if (e.key === 'Enter') {
+                e.preventDefault();
+              }
+            }}
           />
         )}
       </div>
@@ -301,6 +331,13 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
     // Get the image region for this section
     const sectionImageRegion = section.imageRegion || defaultImageRegion;
 
+    const handleSectionToggle = (e: React.MouseEvent) => {
+      // Prevent any default behavior
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSection(section.id);
+    };
+
     return (
       <div
         key={section.id}
@@ -309,8 +346,9 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         {/* Accordion Header */}
         <div className='bg-gray-50 border-b border-gray-200'>
           <button
+            type='button'
             className='w-full p-4 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-inset'
-            onClick={() => toggleSection(section.id)}
+            onClick={handleSectionToggle}
           >
             <h3 className='text-lg font-semibold text-gray-900'>
               {section.title}
@@ -421,49 +459,47 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             </div>
           </div>
 
-          {/* Form section */}
-          <form onSubmit={handleSubmit}>
-            <div
-              className='bg-white rounded-lg shadow-md p-6 overflow-y-auto'
-              style={{ maxHeight: '80vh' }}
-            >
-              {/* Accordion sections */}
-              {sections.map((section, index) =>
-                renderAccordionSection(section, index)
-              )}
-
-              {/* Submit button */}
-              <div className='mt-6 flex justify-end'>
-                <button
-                  type='submit'
-                  className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
-                >
-                  Save All Changes
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      ) : (
-        // Modified accordion layout with document viewers inside each section
-        <form onSubmit={handleSubmit}>
-          <div className='bg-white rounded-lg shadow-md p-6'>
+          {/* Form section - changed to div */}
+          <div
+            className='bg-white rounded-lg shadow-md p-6 overflow-y-auto'
+            style={{ maxHeight: '80vh' }}
+          >
             {/* Accordion sections */}
             {sections.map((section, index) =>
               renderAccordionSection(section, index)
             )}
 
-            {/* Submit button */}
+            {/* Save button */}
             <div className='mt-6 flex justify-end'>
               <button
-                type='submit'
+                type='button'
+                onClick={handleSubmit}
                 className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
               >
                 Save All Changes
               </button>
             </div>
           </div>
-        </form>
+        </div>
+      ) : (
+        // Modified accordion layout with document viewers inside each section - changed to div
+        <div className='bg-white rounded-lg shadow-md p-6'>
+          {/* Accordion sections */}
+          {sections.map((section, index) =>
+            renderAccordionSection(section, index)
+          )}
+
+          {/* Save button */}
+          <div className='mt-6 flex justify-end'>
+            <button
+              type='button'
+              onClick={handleSubmit}
+              className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
+            >
+              Save All Changes
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

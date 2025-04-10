@@ -1,5 +1,19 @@
 # Document Upload and Extraction
 
+## My Intentions
+
+With this take home my main focus was frontend and the user experience, exploring how forms could be represented to best improve work flow and cognitive load.
+
+The bullet points are a mix of opinionated approaches and questions regarding how we would want to approach different challenges and come from my lack of experience within criminal litigation and law in general.
+
+I chose to create this README document and create a live demo to best represent my ideas of how to explore ideas on the forms. I used Cursor to mock up dirty/quick representations of the components, but this does not reflect how I would want to actually develop these components.
+
+In reality I would break down the needs of each component, find ways to reuse smaller components across the application, and leverage Next.js and it diverse options of server side rendering Server Side Rendering (rendering on request), Static Site Generation (so much can be done this way for content that is not going to change much), Incremental Static Regeneration (allows for windows for specific dynamic elements) and of course Client Side Rendering (avoid whenever possible).
+
+In regards to Tailwind customization, this would come after months of development, allowing for the identification of what custom classes we need to avoid repeating ourselves and default styling we truly want.
+
+Over all this project is meant to show my ability to image situations and responded with design ideas. This would be greatly with more context and obviously guidance from those who have actual experience int he field.
+
 ## User Story
 
 "As a prosecutor or legal assistant, I want to upload a scanned image of a police report and receive structured, extracted data for review and approval."
