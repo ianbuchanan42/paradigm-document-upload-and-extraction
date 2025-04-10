@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { PoliceReportData, emptyPoliceReport } from '@/types/PoliceReport';
 
@@ -23,40 +21,14 @@ interface Section {
 interface TabbedSectionViewerProps {
   imageSrc: string;
   initialData?: PoliceReportData;
-  onDataChange: (data: PoliceReportData) => void;
-  onSubmit: (data: PoliceReportData, showConfirmation?: boolean) => void;
-  defaultImageRegion?: ImageRegion; // Default image region if section doesn't define one
 }
 
 const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
   imageSrc,
   initialData = emptyPoliceReport,
-  onDataChange,
-  onSubmit,
-  defaultImageRegion = { top: 0, height: 800, zoom: 1, left: 0, width: 800 }, // Default image region with all properties
 }) => {
-  const [activeTab, setActiveTab] = useState('internal-affairs');
-  const [reportData, setReportData] = useState<PoliceReportData>(initialData);
-  const [showFullDocument, setShowFullDocument] = useState(false);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    const newData = { ...reportData, [name]: value };
-    setReportData(newData);
-    onDataChange(newData);
-  };
-
-  const handleSubmit = (
-    e: React.FormEvent,
-    showConfirmation: boolean = false
-  ) => {
-    e.preventDefault();
-    onSubmit(reportData, showConfirmation);
-  };
+  // Statically define default active tab
+  const activeTab = 'internal-affairs';
 
   // Define sections and their corresponding fields
   const sections: Section[] = [
@@ -114,16 +86,13 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
     },
   ];
 
-  // Get active section fields
+  // Get active section fields - for the initial static render
   const activeSection =
     sections.find((section) => section.id === activeTab) || sections[0];
 
-  // Get the image region for the active section, or use default if not defined
-  const activeImageRegion = activeSection.imageRegion || defaultImageRegion;
-
   // Helper to render appropriate input field based on field name
   const renderField = (fieldName: keyof PoliceReportData) => {
-    const value = reportData[fieldName] || '';
+    const value = initialData[fieldName] || '';
 
     // Define field types and options
     const fieldConfig: Record<
@@ -248,8 +217,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
           <textarea
             id={fieldName}
             name={fieldName}
-            value={value}
-            onChange={handleInputChange}
+            defaultValue={value}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
             rows={4}
           />
@@ -257,8 +225,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
           <select
             id={fieldName}
             name={fieldName}
-            value={value}
-            onChange={handleInputChange}
+            defaultValue={value}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           >
             <option value=''>Select {config.label}</option>
@@ -273,11 +240,69 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
             id={fieldName}
             name={fieldName}
             type={config.type}
-            value={value}
-            onChange={handleInputChange}
+            defaultValue={value}
             className='w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C98F65]'
           />
         )}
+      </div>
+    );
+  };
+
+  // Render each section's tab panel
+  const renderTabPanel = (section: Section, isActive: boolean) => {
+    return (
+      <div
+        key={section.id}
+        role='tabpanel'
+        id={`panel-${section.id}`}
+        aria-labelledby={`tab-${section.id}`}
+        className={isActive ? 'block' : 'hidden'}
+        data-section-id={section.id}
+      >
+        {/* Document section */}
+        <div className='mb-6'>
+          <div className='bg-gray-50 rounded-lg p-4'>
+            <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
+              <div
+                className='absolute w-full'
+                style={{
+                  top: `-${section.imageRegion.top}px`,
+                  left:
+                    section.imageRegion.left !== undefined
+                      ? `-${section.imageRegion.left}px`
+                      : 0,
+                  transform: `scale(${section.imageRegion.zoom || 1})`,
+                  transformOrigin: 'top left',
+                  height: 'auto',
+                }}
+              >
+                <Image
+                  src={imageSrc}
+                  alt={`Police Report Section for ${section.title}`}
+                  width={800}
+                  height={1100}
+                  className='object-contain w-full'
+                  priority
+                />
+              </div>
+            </div>
+            <p className='text-xs text-gray-700 mt-2 text-center'>
+              Document section relevant to {section.title}
+            </p>
+          </div>
+        </div>
+
+        {/* Form Fields */}
+        <div>
+          <h2 className='text-xl font-semibold mb-4 text-gray-900'>
+            {section.title}
+          </h2>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            {section.fields.map((field) =>
+              renderField(field as keyof PoliceReportData)
+            )}
+          </div>
+        </div>
       </div>
     );
   };
@@ -299,18 +324,18 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
           {sections.map((section) => (
             <button
               key={section.id}
-              onClick={() => setActiveTab(section.id)}
-              className={`px-4 py-2 font-medium text-sm transition-colors ${
-                activeTab === section.id
-                  ? 'text-white bg-[#C98F65] rounded-t-md border-b-0 shadow-sm font-bold'
+              className={`px-4 py-2 font-medium text-sm transition-colors tab-button ${
+                section.id === activeTab
+                  ? 'text-white bg-[#C98F65] rounded-t-md border-b-0 shadow-sm font-bold active-tab'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
-              {...(activeTab === section.id
-                ? { 'aria-selected': 'true' }
-                : { 'aria-selected': 'false' })}
+              {...{
+                'aria-selected': section.id === activeTab ? 'true' : 'false',
+              }}
               role='tab'
               id={`tab-${section.id}`}
               aria-controls={`panel-${section.id}`}
+              data-tab-id={section.id}
             >
               {section.title}
             </button>
@@ -321,24 +346,34 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
         <div className='p-4'>
           <div className='flex justify-end mb-4'>
             <button
-              onClick={() => setShowFullDocument(!showFullDocument)}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                showFullDocument
-                  ? 'bg-[#C98F65] text-white'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-              }`}
+              id='toggle-document-view-btn'
+              className='px-3 py-1 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300'
             >
-              {showFullDocument ? 'Show Section View' : 'Show Full Document'}
+              Show Full Document
             </button>
           </div>
 
-          <div
-            role='tabpanel'
-            id={`panel-${activeTab}`}
-            aria-labelledby={`tab-${activeTab}`}
-          >
-            {showFullDocument ? (
-              // Side by side (full document) layout
+          <div id='tab-content-container'>
+            {/* Initial view - Section specific */}
+            <div id='section-view' className='block'>
+              <form id='report-form' className='space-y-4'>
+                {sections.map((section) =>
+                  renderTabPanel(section, section.id === activeTab)
+                )}
+
+                <div className='mt-6 flex justify-end'>
+                  <button
+                    type='submit'
+                    className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Full document view - initially hidden */}
+            <div id='full-document-view' className='hidden'>
               <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                 {/* Full document view */}
                 <div className='bg-gray-50 rounded-lg p-4'>
@@ -358,7 +393,7 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
                 </div>
 
                 {/* Form section */}
-                <form onSubmit={(e) => handleSubmit(e, false)}>
+                <form id='full-document-form' className='space-y-4'>
                   <div>
                     <h2 className='text-xl font-semibold mb-4 text-gray-900'>
                       {activeSection.title}
@@ -380,67 +415,99 @@ const TabbedSectionViewer: React.FC<TabbedSectionViewerProps> = ({
                   </div>
                 </form>
               </div>
-            ) : (
-              // Original section-specific layout
-              <form onSubmit={(e) => handleSubmit(e, false)}>
-                {/* Document section - Now appears above the form fields */}
-                <div className='mb-6'>
-                  <div className='bg-gray-50 rounded-lg p-4'>
-                    <div className='relative border border-gray-200 rounded h-80 overflow-hidden'>
-                      <div
-                        className='absolute w-full'
-                        style={{
-                          top: `-${activeImageRegion.top}px`,
-                          left:
-                            activeImageRegion.left !== undefined
-                              ? `-${activeImageRegion.left}px`
-                              : 0,
-                          transform: `scale(${activeImageRegion.zoom || 1})`,
-                          transformOrigin: 'top left',
-                          height: 'auto',
-                        }}
-                      >
-                        <Image
-                          src={imageSrc}
-                          alt='Police Report Section'
-                          width={800}
-                          height={1100}
-                          className='object-contain w-full'
-                          priority
-                        />
-                      </div>
-                    </div>
-                    <p className='text-xs text-gray-700 mt-2 text-center'>
-                      Document section relevant to {activeSection.title}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Form Fields */}
-                <div>
-                  <h2 className='text-xl font-semibold mb-4 text-gray-900'>
-                    {activeSection.title}
-                  </h2>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                    {activeSection.fields.map((field) =>
-                      renderField(field as keyof PoliceReportData)
-                    )}
-                  </div>
-                </div>
-
-                <div className='mt-6 flex justify-end'>
-                  <button
-                    type='submit'
-                    className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Vanilla JS for tab functionality */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+            
+            tabButtons.forEach(button => {
+              button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab-id');
+                
+                // Update active tab
+                tabButtons.forEach(btn => {
+                  if(btn.getAttribute('data-tab-id') === tabId) {
+                    btn.classList.add('text-white', 'bg-[#C98F65]', 'rounded-t-md', 'border-b-0', 'shadow-sm', 'font-bold', 'active-tab');
+                    btn.classList.remove('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-100');
+                    btn.setAttribute('aria-selected', 'true');
+                  } else {
+                    btn.classList.remove('text-white', 'bg-[#C98F65]', 'rounded-t-md', 'border-b-0', 'shadow-sm', 'font-bold', 'active-tab');
+                    btn.classList.add('text-gray-600', 'hover:text-gray-900', 'hover:bg-gray-100');
+                    btn.setAttribute('aria-selected', 'false');
+                  }
+                });
+                
+                // Update visible panel
+                tabPanels.forEach(panel => {
+                  if(panel.getAttribute('data-section-id') === tabId) {
+                    panel.classList.remove('hidden');
+                    panel.classList.add('block');
+                  } else {
+                    panel.classList.add('hidden');
+                    panel.classList.remove('block');
+                  }
+                });
+              });
+            });
+            
+            // Toggle document view
+            const viewToggleBtn = document.getElementById('toggle-document-view-btn');
+            const sectionView = document.getElementById('section-view');
+            const fullDocumentView = document.getElementById('full-document-view');
+            
+            if(viewToggleBtn && sectionView && fullDocumentView) {
+              viewToggleBtn.addEventListener('click', function() {
+                const isShowingFullDoc = this.textContent.trim() === 'Show Full Document';
+                
+                if(isShowingFullDoc) {
+                  sectionView.classList.add('hidden');
+                  sectionView.classList.remove('block');
+                  fullDocumentView.classList.add('block');
+                  fullDocumentView.classList.remove('hidden');
+                  this.textContent = 'Show Section View';
+                  this.classList.add('bg-[#C98F65]', 'text-white');
+                  this.classList.remove('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                } else {
+                  sectionView.classList.add('block');
+                  sectionView.classList.remove('hidden');
+                  fullDocumentView.classList.add('hidden');
+                  fullDocumentView.classList.remove('block');
+                  this.textContent = 'Show Full Document';
+                  this.classList.remove('bg-[#C98F65]', 'text-white');
+                  this.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                }
+              });
+            }
+            
+            // Form submission
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+              form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Changes saved successfully!');
+                
+                // In a real app, you would process the form data here
+                const formData = new FormData(form);
+                const data = {};
+                for(let [key, value] of formData.entries()) {
+                  data[key] = value;
+                }
+                console.log('Form data:', data);
+              });
+            });
+          });
+          `,
+        }}
+      />
     </div>
   );
 };

@@ -1,54 +1,12 @@
-'use client';
-
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SideBySideViewer from '@/components/PoliceReport/SideBySideViewer';
 import TabbedSectionViewer from '@/components/PoliceReport/TabbedSectionViewer';
 import AccordionSectionViewer from '@/components/PoliceReport/AccordionSectionViewer';
 import SummaryView from '@/components/PoliceReport/SummaryView';
-import { PoliceReportData, emptyPoliceReport } from '@/types/PoliceReport';
+import { emptyPoliceReport } from '@/types/PoliceReport';
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<
-    'side-by-side' | 'tabbed' | 'accordion' | 'summary'
-  >('side-by-side');
-  const [reportData, setReportData] =
-    useState<PoliceReportData>(emptyPoliceReport);
-
-  const handleDataChange = (data: PoliceReportData) => {
-    setReportData(data);
-  };
-
-  const handleSubmit = (
-    data: PoliceReportData,
-    showConfirmation: boolean = false
-  ) => {
-    console.log('Form submitted:', data);
-    // In a real application, you would send this data to your backend
-
-    // Update report data
-    setReportData(data);
-
-    // Only switch to summary view if explicitly requested AND we're not in accordion view
-    if (showConfirmation && currentView !== 'accordion') {
-      setCurrentView('summary');
-    }
-  };
-
-  // Function to safely change the view
-  const changeView = (
-    view: 'side-by-side' | 'tabbed' | 'accordion' | 'summary',
-    e: React.MouseEvent
-  ) => {
-    // Prevent any default behavior
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Set the current view
-    setCurrentView(view);
-  };
-
   return (
     <main className='min-h-screen bg-gray-100'>
       <header className='w-full py-4 px-3 sm:px-6 bg-[#1D182A] text-white shadow-md sticky top-0 z-10'>
@@ -89,44 +47,33 @@ export default function Home() {
             </Link>
           </div>
 
+          {/* Navigation buttons - using plain HTML */}
           <div className='flex flex-wrap justify-center gap-1 sm:gap-2 w-full md:w-auto'>
             <button
-              onClick={(e) => changeView('side-by-side', e)}
-              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors ${
-                currentView === 'side-by-side'
-                  ? 'bg-[#C98F65] text-white'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
-              }`}
+              id='view-button-side-by-side'
+              data-view='side-by-side'
+              className='px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors bg-[#C98F65] text-white cursor-pointer view-button'
             >
               Side by Side
             </button>
             <button
-              onClick={(e) => changeView('tabbed', e)}
-              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors ${
-                currentView === 'tabbed'
-                  ? 'bg-[#C98F65] text-white'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
-              }`}
+              id='view-button-tabbed'
+              data-view='tabbed'
+              className='px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors bg-gray-700 text-white hover:bg-gray-600 cursor-pointer view-button'
             >
               Tabbed Sections
             </button>
             <button
-              onClick={(e) => changeView('accordion', e)}
-              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors ${
-                currentView === 'accordion'
-                  ? 'bg-[#C98F65] text-white'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
-              }`}
+              id='view-button-accordion'
+              data-view='accordion'
+              className='px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors bg-gray-700 text-white hover:bg-gray-600 cursor-pointer view-button'
             >
               Accordion Sections
             </button>
             <button
-              onClick={(e) => changeView('summary', e)}
-              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors ${
-                currentView === 'summary'
-                  ? 'bg-[#C98F65] text-white'
-                  : 'bg-gray-700 text-white hover:bg-gray-600'
-              }`}
+              id='view-button-summary'
+              data-view='summary'
+              className='px-2 sm:px-4 py-2 text-sm sm:text-base rounded-md transition-colors bg-gray-700 text-white hover:bg-gray-600 cursor-pointer view-button'
             >
               Report Summary
             </button>
@@ -134,47 +81,98 @@ export default function Home() {
         </div>
       </header>
 
-      <div className='container mx-auto px-4 py-8'>
-        {currentView === 'side-by-side' && (
-          <div id='side-by-side-container'>
-            <SideBySideViewer
-              imageSrc='/assets/Dummy Police Report.png'
-              initialData={reportData}
-              onSubmit={(data) => handleSubmit(data, true)}
-            />
-          </div>
-        )}
+      <div className='container mx-auto px-4 py-8' id='view-container'>
+        {/* All views pre-rendered, shown/hidden with CSS */}
+        <div id='side-by-side-container' className='block view-container'>
+          <SideBySideViewer
+            imageSrc='/assets/Dummy Police Report.png'
+            initialData={emptyPoliceReport}
+          />
+        </div>
 
-        {currentView === 'tabbed' && (
-          <div id='tabbed-container'>
-            <TabbedSectionViewer
-              imageSrc='/assets/Dummy Police Report.png'
-              initialData={reportData}
-              onDataChange={handleDataChange}
-              onSubmit={(data) => handleSubmit(data, true)}
-            />
-          </div>
-        )}
+        <div id='tabbed-container' className='hidden view-container'>
+          <TabbedSectionViewer
+            imageSrc='/assets/Dummy Police Report.png'
+            initialData={emptyPoliceReport}
+          />
+        </div>
 
-        {currentView === 'accordion' && (
-          <div id='accordion-container' onClick={(e) => e.stopPropagation()}>
-            <AccordionSectionViewer
-              imageSrc='/assets/Dummy Police Report.png'
-              initialData={reportData}
-              onDataChange={(data) => {
-                // Just log the data but don't navigate to summary
-                console.log('Accordion data saved:', data);
-                setReportData(data);
-              }}
-            />
-          </div>
-        )}
+        <div id='accordion-container' className='hidden view-container'>
+          <AccordionSectionViewer
+            imageSrc='/assets/Dummy Police Report.png'
+            initialData={emptyPoliceReport}
+          />
+        </div>
 
-        {currentView === 'summary' && (
-          <div id='summary-container'>
-            <SummaryView reportData={reportData} />
-          </div>
-        )}
+        <div id='summary-container' className='hidden view-container'>
+          <SummaryView reportData={emptyPoliceReport} />
+        </div>
+
+        {/* Pure vanilla JavaScript for interactivity */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            document.addEventListener('DOMContentLoaded', function() {
+              console.log('Document loaded, initializing view switcher');
+              
+              // Get elements
+              const viewButtons = document.querySelectorAll('.view-button');
+              const containers = document.querySelectorAll('.view-container');
+              
+              // Set initial state (side-by-side active)
+              document.getElementById('side-by-side-container').classList.remove('hidden');
+              document.getElementById('side-by-side-container').classList.add('block');
+              document.getElementById('view-button-side-by-side').classList.add('bg-[#C98F65]');
+              document.getElementById('view-button-side-by-side').classList.remove('bg-gray-700');
+              
+              // Handle view switching
+              viewButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  const view = this.getAttribute('data-view');
+                  
+                  // Hide all containers
+                  containers.forEach(container => {
+                    container.classList.add('hidden');
+                    container.classList.remove('block');
+                  });
+                  
+                  // Show selected container
+                  const activeContainer = document.getElementById(view + '-container');
+                  if (activeContainer) {
+                    activeContainer.classList.remove('hidden');
+                    activeContainer.classList.add('block');
+                  }
+                  
+                  // Update active button styling
+                  viewButtons.forEach(btn => {
+                    btn.classList.remove('bg-[#C98F65]');
+                    btn.classList.add('bg-gray-700');
+                  });
+                  this.classList.remove('bg-gray-700');
+                  this.classList.add('bg-[#C98F65]');
+                });
+              });
+              
+              // Add form submission handlers
+              document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                  e.preventDefault();
+                  console.log('Form submitted (using vanilla JS handler)');
+                  const formData = new FormData(form);
+                  const data = {};
+                  for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                  }
+                  console.log('Form data:', data);
+                  // In a real app, would send this to your backend
+                  alert('Form submitted successfully!');
+                });
+              });
+            });
+          `,
+          }}
+        />
       </div>
     </main>
   );

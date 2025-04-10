@@ -9,15 +9,15 @@ const nextConfig: NextConfig = {
   // Enable static exports
   output: 'export',
   // Disable features that aren't supported in static sites
-  // serverComponents property removed due to type error
-  // This ensures Next.js properly prioritizes the favicon in public over src/app
-  // Removing rewrites as they don't work with static export
+  // This ensures Next.js properly prioritizes the favicon in app directory
 
-  // Configure experimental features
+  // Configure experimental features for proper client hydration
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Enable better client-side hydration for static exports
+    optimizeCss: true,
   },
   // Set base path if needed for Render.com deployment
   // basePath: '',

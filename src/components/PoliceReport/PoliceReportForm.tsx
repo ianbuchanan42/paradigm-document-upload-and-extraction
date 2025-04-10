@@ -1,107 +1,15 @@
-'use client';
-
-import React, { useState } from 'react';
+import React from 'react';
 import { PoliceReportData } from '@/types/PoliceReport';
 
 interface PoliceReportFormProps {
   data: PoliceReportData;
-  onChange: (data: PoliceReportData) => void;
-  onSubmit: (data: PoliceReportData) => void;
 }
 
-export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
-  data,
-  onChange,
-  onSubmit,
-}) => {
-  const [errors, setErrors] = useState<Record<string, string>>({});
+export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({ data }) => {
+  // Instead of useState, just pre-render without errors
+  const errors: Record<string, string> = {};
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    const newData = { ...data, [name]: value };
-
-    // Perform validation
-    validateField(name, value);
-
-    // Update parent component
-    onChange(newData);
-  };
-
-  const validateField = (name: string, value: string) => {
-    const fieldErrors = { ...errors };
-
-    // Clear existing error for this field
-    delete fieldErrors[name];
-
-    // Validate based on field name
-    switch (name) {
-      case 'phone':
-      case 'phoneSecondary':
-        if (value && !/^\(\d{3}\) \d{3}-\d{4}$/.test(value)) {
-          fieldErrors[name] = 'Phone must be in format (XXX) XXX-XXXX';
-        }
-        break;
-      case 'zip':
-        if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
-          fieldErrors[name] = 'ZIP code must be in format XXXXX or XXXXX-XXXX';
-        }
-        break;
-      case 'dob':
-        if (value) {
-          const date = new Date(value);
-          if (isNaN(date.getTime())) {
-            fieldErrors[name] = 'Please enter a valid date';
-          }
-        }
-        break;
-      case 'age':
-        if (
-          value &&
-          (isNaN(Number(value)) || Number(value) < 0 || Number(value) > 120)
-        ) {
-          fieldErrors[name] = 'Please enter a valid age (0-120)';
-        }
-        break;
-      default:
-        // For required fields
-        if (value.trim() === '') {
-          fieldErrors[name] = 'This field is required';
-        }
-    }
-
-    setErrors(fieldErrors);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate all fields before submission
-    const allErrors: Record<string, string> = {};
-    Object.entries(data).forEach(([key, value]) => {
-      // Only validate string values
-      if (typeof value === 'string') {
-        validateField(key, value);
-
-        // Collect errors for all required fields
-        if (value.trim() === '') {
-          allErrors[key] = 'This field is required';
-        }
-      }
-    });
-
-    // Update errors state
-    setErrors(allErrors);
-
-    // Only submit if no errors
-    if (Object.keys(allErrors).length === 0) {
-      onSubmit(data);
-    }
-  };
-
+  // The static form rendering with client-side behavior added via script
   const renderField = (
     label: string,
     name: keyof PoliceReportData,
@@ -124,8 +32,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
           <textarea
             id={name}
             name={name}
-            value={value}
-            onChange={handleChange}
+            defaultValue={value}
             className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#C98F65] ${
               error ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -135,8 +42,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
           <select
             id={name}
             name={name}
-            value={value}
-            onChange={handleChange}
+            defaultValue={value}
             className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#C98F65] ${
               error ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -153,8 +59,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
             id={name}
             name={name}
             type={type}
-            value={value}
-            onChange={handleChange}
+            defaultValue={value}
             className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#C98F65] ${
               error ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -171,7 +76,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6' noValidate>
+    <form id='police-report-form' className='space-y-6' noValidate>
       {/* Internal Affairs Section */}
       <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
         <h2 className='text-lg font-semibold mb-4 text-gray-900'>
@@ -246,8 +151,17 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
             'WY',
           ])}
           {renderField('ZIP', 'zip')}
-          {renderField('Phone', 'phone')}
+          {renderField('Phone', 'phone', 'tel')}
           {renderField('Employer/School', 'employerSchool')}
+        </div>
+      </div>
+
+      {/* Demographics Section */}
+      <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
+        <h2 className='text-lg font-semibold mb-4 text-gray-900'>
+          Demographics
+        </h2>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {renderField('Race', 'race')}
           {renderField('Gender', 'gender', 'select', [
             'Male',
@@ -259,55 +173,42 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
           {renderField('Date of Birth', 'dob', 'date')}
           {renderField('Age', 'age', 'number')}
           {renderField('Sex', 'sex', 'select', ['Male', 'Female', 'Other'])}
-          {renderField('Phone (Secondary)', 'phoneSecondary')}
+          {renderField('Phone (Secondary)', 'phoneSecondary', 'tel')}
         </div>
       </div>
 
-      {/* Incident Details Section */}
-      <div className='bg-gray-50 p-4 rounded-md border border-gray-200'>
-        <h2 className='text-lg font-semibold mb-4 text-gray-900'>
-          Incident Details
-        </h2>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          {renderField('Nature of Complaint', 'natureOfComplaint')}
-          {renderField('Complaint Against (Name[s])', 'complaintAgainst')}
-          {renderField('Badge No(s)', 'badgeNos')}
-          {renderField('Date', 'incidentDate', 'date')}
-          {renderField('Time', 'incidentTime', 'time')}
-          {renderField(
-            'Date/Time Reported',
-            'reportedDateTime',
-            'datetime-local'
-          )}
-          {renderField('How Reported', 'howReported', 'select', [
-            'In Person',
-            'Phone',
-            'Email',
-            'Mail',
-            'Online',
-            'Other',
-          ])}
-          {renderField('Incident Location', 'incidentLocation')}
-          {renderField('Dist/Area', 'distArea')}
-          {renderField('Beat', 'beat')}
-        </div>
-        <div className='mt-4'>
-          {renderField(
-            'Description of Incident',
-            'incidentDescription',
-            'textarea'
-          )}
-        </div>
-      </div>
-
-      <div className='mt-6 flex justify-end'>
+      {/* Submit button */}
+      <div className='flex justify-end'>
         <button
           type='submit'
           className='px-4 py-2 bg-[#C98F65] text-white rounded-md hover:bg-[#b57a50] focus:outline-none focus:ring-2 focus:ring-[#C98F65] focus:ring-offset-2 transition-colors'
         >
-          Submit Report
+          Save Changes
         </button>
       </div>
+
+      {/* Add client-side JavaScript for form handling */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('police-report-form');
+            
+            if (form) {
+              form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Form submitted successfully!');
+                
+                // In a real app, here you would collect and submit form data
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                console.log('Form data:', data);
+              });
+            }
+          });
+          `,
+        }}
+      />
     </form>
   );
 };
