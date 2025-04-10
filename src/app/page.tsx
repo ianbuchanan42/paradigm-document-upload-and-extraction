@@ -65,6 +65,7 @@ export default function Home() {
               width={200}
               height={75}
               className='mr-4'
+              priority
             />
             <h1 className='text-xl md:text-2xl font-bold'>
               Document Upload & Extraction

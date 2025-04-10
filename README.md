@@ -1,5 +1,11 @@
 # Document Upload and Extraction
 
+## Static Site Deployment
+
+This project has been configured for Static Site Generation (SSG), allowing it to be hosted as a static site on platforms like Render.com. The demo is entirely client-side with simulated interactions, making it perfect for deployment as a static site.
+
+For detailed deployment instructions, see the [DEPLOYMENT.md](./DEPLOYMENT.md) guide.
+
 ## My Intentions
 
 With this take home my main focus was frontend and the user experience, exploring how forms could be represented to best improve work flow and cognitive load.
@@ -52,7 +58,7 @@ The user receives confirmation that the upload was successful and that extractio
 **Technical Implementation:**
 
 - Real-time progress tracking via WebSocket connection
-  - A persistent WebSocket connection is established between the client (Next.js) and the backend. Once the processing starts, the backend sends periodic messages (e.g., "Section 1 processed", "50% complete") through the socket. This approach is more efficient than HTTP polling since the server pushes updates only when there’s new information.
+  - A persistent WebSocket connection is established between the client (Next.js) and the backend. Once the processing starts, the backend sends periodic messages (e.g., "Section 1 processed", "50% complete") through the socket. This approach is more efficient than HTTP polling since the server pushes updates only when there's new information.
   - I have not used WebSockets, but seems like a possible good use case for them.
 - Backend OCR processing with section segmentation
   - Section Segmentation: Once the text is extracted, algorithms (either rule-based or powered by NLP techniques) analyze document structure (like headings, page breaks, or layout patterns) to segment the text into distinct sections. These sections would represent different parts of the uploaded report.
