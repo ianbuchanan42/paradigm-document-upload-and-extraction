@@ -22,6 +22,12 @@ const highlightCategories: Record<string, HighlightCategory> = {
 
 type HighlightType = keyof typeof highlightCategories;
 
+// Base interface for highlighted items
+interface HighlightableRecord {
+  highlight?: HighlightType;
+  [key: string]: string | undefined;
+}
+
 interface HighlightedText {
   text: string;
   type?: HighlightType;
@@ -227,7 +233,10 @@ const SummaryView: React.FC<SummaryViewProps> = ({ reportData }) => {
   };
 
   // Check if a section has highlighted items of a certain type
-  const sectionHasHighlight = (items: any[], highlightType: HighlightType) => {
+  const sectionHasHighlight = (
+    items: HighlightableRecord[],
+    highlightType: HighlightType
+  ) => {
     return items.some((item) => item.highlight === highlightType);
   };
 
@@ -315,7 +324,7 @@ const SummaryView: React.FC<SummaryViewProps> = ({ reportData }) => {
     item,
     highlightField = 'highlight',
   }: {
-    item: any;
+    item: HighlightableRecord;
     highlightField?: string;
   }) => {
     const highlightType = item[highlightField] as HighlightType;

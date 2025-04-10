@@ -11,17 +11,13 @@ const nextConfig: NextConfig = {
   // Disable features that aren't supported in static sites
   // serverComponents property removed due to type error
   // This ensures Next.js properly prioritizes the favicon in public over src/app
-  async rewrites() {
-    return [
-      {
-        source: '/favicon.ico',
-        destination: '/public/favicon.ico',
-      },
-    ];
-  },
+  // Removing rewrites as they don't work with static export
+
   // Configure experimental features
   experimental: {
-    serverActions: false,
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
   },
   // Set base path if needed for Render.com deployment
   // basePath: '',

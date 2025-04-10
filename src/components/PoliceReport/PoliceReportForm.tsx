@@ -32,7 +32,7 @@ export const PoliceReportForm: React.FC<PoliceReportFormProps> = ({
   };
 
   const validateField = (name: string, value: string) => {
-    let fieldErrors = { ...errors };
+    const fieldErrors = { ...errors };
 
     // Clear existing error for this field
     delete fieldErrors[name];

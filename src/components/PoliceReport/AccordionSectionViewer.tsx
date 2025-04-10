@@ -24,7 +24,6 @@ interface AccordionSectionViewerProps {
   imageSrc: string;
   initialData?: PoliceReportData;
   onDataChange: (data: PoliceReportData) => void;
-  onSubmit: (data: PoliceReportData) => void;
   defaultImageRegion?: ImageRegion; // Default image region if section doesn't define one
 }
 
@@ -32,7 +31,6 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
   imageSrc,
   initialData = emptyPoliceReport,
   onDataChange,
-  onSubmit,
   defaultImageRegion = { top: 0, height: 800, zoom: 1, left: 0, width: 800 }, // Default image region with all properties
 }) => {
   const [reportData, setReportData] = useState<PoliceReportData>(initialData);
@@ -124,15 +122,6 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
       imageRegion: { top: 900, height: 600, zoom: 0.8 },
     },
   ];
-
-  // Get the active section to determine which image region to show
-  const activeSection =
-    expandedSections.length > 0
-      ? sections.find((section) => section.id === expandedSections[0])
-      : sections[0];
-
-  // Get the image region for the active section
-  const activeImageRegion = activeSection?.imageRegion || defaultImageRegion;
 
   // Toggle section expansion
   const toggleSection = (sectionId: string) => {
@@ -325,7 +314,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
   };
 
   // Render an accordion section
-  const renderAccordionSection = (section: Section, index: number) => {
+  const renderAccordionSection = (section: Section) => {
     const isExpanded = expandedSections.includes(section.id);
 
     // Get the image region for this section
@@ -465,9 +454,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
             style={{ maxHeight: '80vh' }}
           >
             {/* Accordion sections */}
-            {sections.map((section, index) =>
-              renderAccordionSection(section, index)
-            )}
+            {sections.map((section) => renderAccordionSection(section))}
 
             {/* Save button */}
             <div className='mt-6 flex justify-end'>
@@ -485,9 +472,7 @@ const AccordionSectionViewer: React.FC<AccordionSectionViewerProps> = ({
         // Modified accordion layout with document viewers inside each section - changed to div
         <div className='bg-white rounded-lg shadow-md p-6'>
           {/* Accordion sections */}
-          {sections.map((section, index) =>
-            renderAccordionSection(section, index)
-          )}
+          {sections.map((section) => renderAccordionSection(section))}
 
           {/* Save button */}
           <div className='mt-6 flex justify-end'>
